@@ -1,0 +1,55 @@
+.settings {
+  width: auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+
+  .options {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    position: absolute;
+    right: -300px;
+    opacity: 0%;
+    transition: ease-out 0.3s;
+
+    select {
+      background-color: white;
+      @include font-settings;
+      @include focusBorder;
+      border-radius: 14px;
+      padding: 5px;
+    }
+    &.slide-in {
+      right: 0px;
+      opacity: 100%;
+    }
+  }
+
+  .icon {
+    width: 4rem;
+    height: 4rem;
+    position: absolute;
+    top: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .rotate120 {
+      rotate: -120deg;
+    }
+
+    .settings-icon {
+      transition: rotate ease-in-out 0.3s, font-size ease-in-out 0.1s;
+      font-size: 30px;
+      cursor: pointer;
+    }
+    .settings-icon:hover {
+      font-size: 34px;
+    }
+  }
+}

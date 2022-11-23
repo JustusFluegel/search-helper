@@ -20,11 +20,11 @@ export function Settings(props) {
   };
 
   const handleClick = () => {
-    setIsOpen(!isOpen);
     isOpen
-      ? setIconClass('settings-icon rotate120')
-      : setIconClass('settings-icon');
-    isOpen ? setOptionsClass('options slide-in') : setOptionsClass('options');
+      ? setIconClass('settings-icon')
+      : setIconClass('settings-icon rotate120');
+    isOpen ? setOptionsClass('options') : setOptionsClass('options slide-in');
+    setIsOpen(!isOpen);
   };
 
   return (
@@ -40,8 +40,9 @@ export function Settings(props) {
         <div className="pick-sort">
           <p>Sort By</p>
           <select onChange={changeSort}>
-            <option value="Date">Date</option>
-            <option value="Relevancy">Relevancy</option>
+            <option value="relevancy">Relevancy</option>
+            <option value="date">Date</option>
+            <option value="starred">Starred</option>
           </select>
         </div>
       </div>

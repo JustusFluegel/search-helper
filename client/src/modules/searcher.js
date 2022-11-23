@@ -35,7 +35,7 @@ export class Searcher {
     const sq = new SearchQuery();
     sq.ignore = findOperands(search, '--'); // Find ignores
     sq.require = findOperands(search, '!-'); // Find requires
-    sq.tags = findOperands(search, 't-'); // Find requires
+    sq.tags = findOperands(search, 't-'); // Find tags
     // Find the rest
     let terms = search;
     sq.ignore.concat(sq.require).forEach((word) => {
@@ -60,12 +60,17 @@ export class Searcher {
    * @param {SearchQuery} query The SearchQuery.
    * @returns {Promise<{title, link, id}[]>} An array of {title, link, id} objects.
    */
-  async searchStackExchange(site, query) {
+  async searchStackExchange(site, query, sort) {
     if (!(query instanceof SearchQuery)) {
       throw new Error('Query is not a SearchQuery.');
     }
     let reqURL = SEAPI;
-    reqURL += '?pagesize=30&order=desc&sort=relevance';
+    reqURL += '?pagesize=30&order=desc';
+    if (sort === 'date') {
+      reqURL += '&sort=activity';
+    } else {
+      reqURL += '&sort=relevance';
+    }
     if (query.terms.length > 0) {
       reqURL += `&q=${query.terms.join('%20')}`;
     }
@@ -110,7 +115,7 @@ export class Searcher {
    * @param {SearchQuery} query The SearchQuery.
    * @returns {Promise<{title, link, id}[]>} An array of {title, link, id} objects.
    */
-  async searchGoogle(query) {
+  async searchGoogle(query, sort) {
     if (!(query instanceof SearchQuery)) {
       throw new Error('Query is not a SearchQuery.');
     }
@@ -119,12 +124,16 @@ export class Searcher {
       '?key=AIzaSyCMCksg_d6ca9srsVFNrBUzA1wbkLsfyRs&cx=33f51b3ea70b34663';
     if (query.terms.length > 0) {
       reqURL += `&q=${query.terms.join('%20')}`;
+      //reqURL += `&relatedSite=${query.terms.join('%20')}`;
     }
     if (query.require.length > 0) {
       reqURL += `&exactTerms=${query.require.join('%20')}`;
     }
     if (query.ignore.length > 0) {
       reqURL += `&excludeTerms=${query.ignore.join('%20')}`;
+    }
+    if (sort === 'date') {
+      reqURL += '&dateRestrict=w1%20';
     }
 
     console.log('Request: ' + reqURL);
@@ -156,19 +165,19 @@ export class Searcher {
  *
  * @example
  * var prompt = 'how to --good learn chinese --happy --expensive';
- * findOperands(prompt, '-');
+ * findOperands(prompt, '--');
  * -> ['good', 'happy', 'expensive']
  */
 function findOperands(string, operator) {
   const operands = [];
   let index = string.indexOf(operator, 0);
   while (index !== -1) {
-    let spaceIndex = string.indexOf(' ', index + 1);
-    if (spaceIndex === -1) {
-      spaceIndex = string.length;
+    let endOfOp = string.indexOf(' ', index + 1);
+    if (endOfOp === -1) {
+      endOfOp = string.length;
     }
-    operands.push(string.slice(index + 1, spaceIndex));
-    index = string.indexOf(operator, index + 1);
+    operands.push(string.slice(index + operator.length, endOfOp));
+    index = string.indexOf(operator, index + operator.length);
   }
   return operands;
 }

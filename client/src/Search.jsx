@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { Searcher } from './modules/searcher.js';
 import { Settings } from './Settings.jsx';
-import { SortedResults } from './SortedResults.jsx';
+import { useNavigate } from 'react-router-dom';
 
 const searcher = new Searcher('languagelearning');
 
 export function Search(props) {
-  const [question, setQuestion] = useState('');
-  const [site, setSite] = useState('google');
-  const [sort, setSort] = useState('default');
-  const [rawArticles, setRawArticles] = useState();
+  const navigate = useNavigate();
 
-  //let rawArticles = [];
+  const [question, setQuestion] = useState('');
+  let site = props.site;
+  let sort = props.sort;
+
   const updateResults = async () => {
     if (!question) {
       return <div>No question given.</div>;
@@ -19,32 +19,51 @@ export function Search(props) {
     //debugger;
     let sq = searcher.toSearchQuery(question);
     console.log(sq);
+    console.log(site);
     switch (site) {
-      // case 'stackexchange':
-      //   setRawArticles(
-      //     await searcher.searchStackExchange('languagelearning', sq)
-      //   );
-      //   break;
+      case 'stackexchange':
+        props.setRawArticles(
+          await searcher.searchStackExchange('languagelearning', sq, sort)
+        );
+        break;
       case 'google':
-        setRawArticles(await searcher.searchGoogle(sq));
-        //rawArticles = await searcher.searchGoogle(sq);
+        props.setRawArticles(await searcher.searchGoogle(sq, sort));
         break;
       default:
-      // setRawArticles([
-      //   { title: 'dummytitle', link: 'dummylink', id: 'dummyid' },
-      // ]);
+        props.setRawArticles([
+          { title: 'dummytitle', link: 'dummylink', id: 'dummyid' },
+        ]);
     }
-    console.table(rawArticles);
+    // console.table(rawArticles);
+  };
+
+  const handleSiteChange = (newSite) => {
+    props.setSite(newSite);
+    site = newSite;
+    console.log(newSite);
+    updateResults();
+  };
+
+  const handleSortChange = (newSort) => {
+    props.setSort(newSort);
+    sort = newSort;
+    console.log(newSort);
+    updateResults();
   };
 
   return (
-    <div className="search">
-      <Settings site={site} setSite={setSite} setSort={setSort} />
+    <>
+      <Settings
+        site={site}
+        setSite={handleSiteChange}
+        setSort={handleSortChange}
+      />
       <form
         className="search-bar"
         onSubmit={(event) => {
           updateResults();
           event.preventDefault();
+          navigate('/results');
         }}
       >
         <label>
@@ -60,8 +79,6 @@ export function Search(props) {
         </label>
         <input className="search-bar-submit" type="submit" value="Search" />
       </form>
-
-      <SortedResults rawArticles={rawArticles} sort={sort} />
-    </div>
+    </>
   );
 }
