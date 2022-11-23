@@ -16,6 +16,7 @@ export function Settings(props) {
 
   const changeSort = (event) => {
     console.log('sort: ' + event.target.value);
+    props.setSort(event.target.value);
   };
 
   const handleClick = () => {
